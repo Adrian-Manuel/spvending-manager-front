@@ -1,0 +1,107 @@
+/* ---------- Main ---------- */
+main {
+    display: flex;
+    flex-direction: row;
+}
+/* ---------- SECTION CONTAINER ---------- */
+.sectionContainer {
+    width: 100%;
+}
+
+/* ---------- TABLE CONTAINER ---------- */
+.container{
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 3%;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #002A72;
+    box-shadow: 5px 5px 5px #0000006f;
+}
+
+/* ---------- Header content ---------- */
+.headerContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 5%;
+}
+
+/* ----- Information text ----- */
+p.infText {
+    width: 10%;
+    align-content: center;
+    text-align: center;
+}
+
+/* ----- Add button ----- */
+.addButton {
+    background-color: #002A72;
+    color: #FFF;
+    padding: 10px 30px 10px;
+    border-radius: 40px;
+    border: none;
+    transition: background-color 0.2s ease-out;
+}
+
+.addButton:hover {
+    background-color: #D9D9D9;
+    color: #000000;
+    padding: 10px 30px 10px;
+    border-radius: 40px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ----- Searcher ----- */
+.searcher {
+    border-radius: 40px;
+    outline: none;
+    border: 1px solid #021B46;
+    padding: 0 20px;
+    text-align: center;
+    margin-right: 50%;
+}
+
+/* ---------- TABLE CONTAINER ---------- */
+.tableContainer {
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #002A72;
+}
+
+
+
+/* ---------- Table styles ---------- */
+.headerTB {
+    padding: 10px 15px;
+}
+
+.headerTB:last-child {
+    justify-items: right;
+}
+
+.tableRow td,
+.pDatatableThead > tr > th {
+    padding: 10px 15px;
+}
+
+.tableRow td:last-child {
+    justify-items: right;
+}
+
+.tableRow:hover {
+    background-color: #C4C4C4;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.tableRow:hover td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.tableRow:hover td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}

@@ -1,0 +1,18 @@
+/* ---------- ASIDE CSS ---------- */
+.aside {
+    background-color: #021B46;
+    width: 100px;
+    height: 90vh;
+    transition: width 0.5s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.aside:hover {
+    width: 312px;
+}
+
+.imgContainer {
+
+}

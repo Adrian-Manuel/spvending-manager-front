@@ -1,0 +1,71 @@
+/* ---------- HEADER CSS ---------- */
+header.header {
+    background-color: #021B46;
+    height: 10vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ---------- Text decoration ---------- */
+header.header > h1, header > div.userContainer > h2 {
+    color: #fff;
+}
+
+header.header > h1 {
+    margin-left: 32px;
+}
+
+/* ---------- USER CONTAINER CSS ---------- */
+.userContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 200px;
+    margin-right: 3%;
+    padding: 1% 2% 0px 2%;
+    cursor: pointer;
+}
+
+.picContainer {
+    background-color: #D9D9D9;
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+}
+
+/* ---------- PROFILE MENU ---------- */
+.menuProfileHidden {
+    background-color: #021B46;
+    width: 300px;
+    height:fit-content;
+    position: absolute;
+    top: 10vh;
+    right: 2.5%;
+    padding: 20px;
+    border-radius: 0px 0px 10px 10px;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.menuProfile {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.cntnrNv {
+    height: fit-content;
+}
+
+.cntnrUl {
+    height: fit-content;
+}
+
+li.cntnrLi > button {
+    width: 90%;
+    padding: 10px 30px 10px;
+    border-radius: 10px;
+}
