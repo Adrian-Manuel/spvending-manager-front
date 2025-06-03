@@ -1,0 +1,93 @@
+image: docker:latest
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_HOST: unix:///var/run/docker.sock
+  IMAGE_NAME: "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+  GIT_DEPTH: "0"
+stages:
+  - build
+  - deploy_production
+
+build_image:
+  stage: build
+  tags:
+    - build
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        git fetch origin main
+        if git branch -r --contains "$CI_COMMIT_SHA" | grep -q "origin/main"; then
+                  docker build -t "$IMAGE_NAME" .
+                  docker push "$IMAGE_NAME"
+          else
+              echo "El tag NO proviene de main. Saltando build."
+        fi
+          else
+            echo "No es un tag. Saltando build."
+      fi
+
+  rules:
+    - if: $CI_COMMIT_TAG=~ /^v\d+\.\d+\.\d+$/
+      when: always
+
+deploy_app_production:
+  stage: deploy_production
+  tags:
+    - azure
+  services: []
+  variables:
+    COMPOSE_PROJECT_NAME: "spvending-managment-production-front"
+    DOCKER_HOST: "unix:///var/run/docker.sock"
+  before_script:
+    - echo "=== Autenticando con GitLab Registry ==="
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+  script:
+    - |
+      if [[ "$CI_COMMIT_TAG" =~ ^deploy-production-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        git fetch origin main
+        if git branch -r --contains "$CI_COMMIT_SHA" | grep -q "origin/main"; then
+          echo "=== Preparando despliegue ==="
+
+          echo "=== Iniciando despliegue para $CI_COMMIT_TAG ===" 
+          export DEPLOY_TAG="${CI_COMMIT_TAG#deploy-production-}"
+          IMAGE_NAME="$CI_REGISTRY_IMAGE:$DEPLOY_TAG"
+        
+          echo "=== Descargando imagen $IMAGE_NAME ==="
+          docker pull "$IMAGE_NAME"
+        
+          echo "=== Creando contenedor temporal para extraer build ==="
+          docker create --name extract_temp "$IMAGE_NAME"
+        
+          echo "=== Copiando archivos del build a /var/www/html ==="
+          docker cp extract_temp:/app/dist/. /var/www/html/
+
+          echo "=== Eliminando contenedor temporal ==="
+          docker rm extract_temp
+
+          echo "=== Limpiando imágenes no usadas ==="
+          docker image prune -af
+          ls -la /var/www/html
+          sudo nginx -s reload
+          echo "=== Despliegue completado con éxito ==="
+          exit 0
+        else
+          echo "El tag NO proviene de main. Saltando despliegue."
+          exit 0
+        fi
+      else
+        echo "No es un tag de despliegue válido. Saltando..."
+        echo "Tag recibido: $CI_COMMIT_TAG"
+        echo "Formato esperado: deploy-production-v[X.Y.Z]"
+        exit 0
+      fi
+  after_script:
+    - docker logout $CI_REGISTRY
+    - |
+      if [ "$CI_JOB_STATUS" != "success" ]; then
+        echo "=== Error: el despliegue falló ==="
+      fi
+
+  rules:
+    - if: $CI_COMMIT_TAG=~ /^deploy-production-v\d+\.\d+\.\d+$/
