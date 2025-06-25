@@ -1,107 +1,161 @@
-/* TODO: change to css modules */
-/* ---------- BACKGROUND MODAL---------- */
-.modalOverlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 999;
+/* Using PrimeReact Dialog, so these styles are for customizing it or for custom modal structure if not using Dialog */
+
+/* Overlay for the modal (PrimeReact's .p-dialog-mask) */
+:global(.p-dialog-mask) {
+    background-color: rgba(0, 0, 0, 0.6) !important; /* Darker overlay */
+    backdrop-filter: blur(2px); /* Optional: blur background */
 }
 
-/* ---------- CONTAINER MODAL ---------- */
-.modalContainer {
-	padding: 5%;
-	background-color: white;
-	border-radius: 24px;
-	height: 800px;
+/* The modal itself (PrimeReact's .p-dialog) */
+:global(.p-dialog) {
+    border-radius: 12px !important; /* Softer radius for the dialog */
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important; /* Enhanced shadow */
+    max-height: 90vh !important; /* Max height to prevent overflow on small screens */
+    width: 50vw !important; /* Default width */
 }
 
-/* HEADER */
-.h2 {
-	text-align: center;
-	margin-bottom: 25px;
-	font-size: 2rem;
+/* Modal Header (PrimeReact's .p-dialog-header) */
+:global(.p-dialog .p-dialog-header) {
+    background-color: var(--corporate-primary-color) !important;
+    color: var(--corporate-background-color) !important;
+    padding: 1rem 1.5rem !important; /* Adjust padding */
+    border-top-left-radius: 12px !important; /* Match dialog radius */
+    border-top-right-radius: 12px !important;
+    border-bottom: 1px solid var(--corporate-primary-color) !important; /* Separator */
 }
 
-/* ---------- MODAL CSS ---------- */
-.modal {
-	background-color: white;
-	padding: 1%;
-	border-radius: 24px;
-	height: 850px;
-	width: 50vw;
+:global(.p-dialog .p-dialog-title) {
+    font-size: 1.5rem !important; /* Larger title */
+    font-weight: 600 !important;
 }
 
-.form {
-	background-color: rgba(196, 196, 196, 0.5);
-	border: 1px solid #002A72;
-	box-shadow: 5px 5px 5px #0000006f;
-	padding: 2rem;
-	border-radius: 12px;
-	width: 50vw/*400px*/;
-	max-width: 90%;
+:global(.p-dialog .p-dialog-header-icon) {
+    color: var(--corporate-background-color) !important; /* White close icon */
+}
+:global(.p-dialog .p-dialog-header-icon:hover) {
+    background-color: rgba(255,255,255,0.2) !important; /* Hover effect for close icon */
 }
 
-.form > .inputPack {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-content: center;
-	align-items: center;
-	border-bottom: 2px dotted;
-	margin-top: 0.8rem;
+
+/* Modal Content (PrimeReact's .p-dialog-content) */
+:global(.p-dialog .p-dialog-content) {
+    padding: 1.5rem !important; /* More padding in content area */
+    background-color: var(--corporate-background-color);
+    overflow-y: auto; /* Ensure content scrolls if it overflows */
 }
 
-.inputPack > * {
-	margin-bottom: 10px;
+/* Modal Footer (PrimeReact's .p-dialog-footer) */
+:global(.p-dialog .p-dialog-footer) {
+    padding: 1rem 1.5rem !important;
+    border-top: 1px solid #e9ecef !important; /* Separator for footer */
+    background-color: #f8f9fa; /* Light background for footer */
+    border-bottom-left-radius: 12px !important; /* Match dialog radius */
+    border-bottom-right-radius: 12px !important;
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    gap: 0.5rem; /* Space between buttons */
 }
 
-.form input {
-	width: 50%;
-	padding: 0.5rem;
-	border-radius: 8px;
-	border: 1px solid #ccc;
+/* Form specific styles if forms are used inside modals */
+.form { /* This class can be applied to a form element inside the .p-dialog-content */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between form groups/input packs */
 }
 
-.buttonsContainer {
-	display: flex;
-	flex-direction: row;
-	justify-content: end;
+.inputPack { /* Container for a label and its input field(s) */
+    display: flex;
+    flex-direction: column; /* Stack label above input by default */
+    gap: 0.5rem; /* Space between label and input */
+    padding-bottom: 1rem; /* Space below each input pack */
+    border-bottom: 1px dotted #ccc; /* Dotted separator */
+}
+.inputPack:last-child {
+    border-bottom: none; /* No border for the last item */
 }
 
-.button {
-    padding: 10px 30px 10px;
-    border-radius: 10px;
-    border: none;
-    color: #FFF;
-    background-color: #002A72;
-    transition: background-color 0.2s ease-out;
-    margin-left: 1%;
-    margin-top: 1%;
+.inputPack label {
+    font-weight: 500; /* Medium weight for labels */
+    color: var(--corporate-text-color);
+    font-size: 0.95rem;
 }
 
-.button:hover {
-    background-color: #D9D9D9;
-    color: #000000;
-    padding: 10px 30px 10px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
+/* PrimeReact input components like InputText, Dropdown, etc. */
+:global(.p-inputtext), :global(.p-dropdown), :global(.p-calendar) { /* Target PrimeReact input components */
+    width: 100% !important; /* Make inputs take full width of their container */
+    font-size: 1rem !important;
+    padding: 0.75rem !important; /* Consistent padding */
 }
 
-.radioButtons {
-	display: flex;
-	flex-direction: row;
-	align-items: baseline;
+.radioButtons { /* Container for radio buttons if used */
+    display: flex;
+    flex-wrap: wrap; /* Allow radio buttons to wrap */
+    gap: 1rem; /* Space between radio button options */
+    align-items: center;
 }
 
-input.rdbttn {
-	width: 30px;
-	margin-right: 10px;
-	margin-bottom: 20px;
+.radioButtonItem { /* Individual radio button and its label */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* PrimeReact Buttons in Footer */
+/* :global(.p-dialog-footer .p-button) - already covered by global .p-button styles in App.css */
+
+
+/* Responsive adjustments for modals */
+@media (max-width: 992px) { /* Medium devices (tablets) */
+    :global(.p-dialog) {
+        width: 70vw !important; /* Wider for tablets */
+    }
+}
+
+@media (max-width: 768px) { /* Small devices (landscape phones, large portrait phones) */
+    :global(.p-dialog) {
+        width: 85vw !important; /* Even wider */
+        max-height: 85vh !important;
+    }
+    :global(.p-dialog .p-dialog-title) {
+        font-size: 1.3rem !important;
+    }
+    :global(.p-dialog .p-dialog-content) {
+        padding: 1rem !important;
+    }
+     .form {
+        gap: 1rem;
+    }
+    .inputPack {
+        padding-bottom: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) { /* Extra small devices (portrait phones) */
+    :global(.p-dialog) {
+        width: 95vw !important; /* Almost full width */
+        max-height: 90vh !important; /* Allow more height */
+        border-radius: 8px !important; /* Reduce radius for smaller screens */
+    }
+    :global(.p-dialog .p-dialog-header), :global(.p-dialog .p-dialog-footer) {
+        padding: 0.75rem 1rem !important; /* Reduce padding in header/footer */
+        border-radius: 8px !important;
+    }
+    :global(.p-dialog .p-dialog-title) {
+        font-size: 1.1rem !important;
+    }
+    .inputPack label {
+        font-size: 0.9rem;
+    }
+    :global(.p-inputtext), :global(.p-dropdown), :global(.p-calendar) {
+        font-size: 0.95rem !important;
+        padding: 0.6rem !important;
+    }
+     /* Stack buttons in footer on very small screens */
+    :global(.p-dialog .p-dialog-footer) {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    :global(.p-dialog .p-dialog-footer .p-button) {
+        width: 100%; /* Make footer buttons full width */
+    }
 }

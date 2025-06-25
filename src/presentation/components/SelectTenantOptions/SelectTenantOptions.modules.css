@@ -1,0 +1,24 @@
+/* SelectTenantOptions.modules.css */
+.tenantDropdown { /* This class is applied to the PrimeReact Dropdown component */
+    width: 100% !important; /* Ensure it takes full width within its parent (.inputPack) */
+}
+
+/* If you need to override specific parts of the PrimeReact dropdown,
+   you might need to use :global or ensure your CSS specificity is high enough.
+   For example, to style the placeholder text:
+*/
+:global(.p-dropdown.p-component .p-dropdown-label.p-placeholder) {
+    color: #6c757d; /* Standard Bootstrap placeholder color, adjust as needed */
+    font-style: italic;
+}
+
+/* Style for the filter input if enabled */
+:global(.p-dropdown-filter.p-inputtext) {
+    padding: 0.5rem !important; /* Adjust padding for filter input */
+}
+
+/* Style for items in the dropdown panel */
+:global(.p-dropdown-item) {
+    padding: 0.75rem 1rem !important; /* Adjust padding for dropdown items */
+}
+/* Add more specific styling if needed */

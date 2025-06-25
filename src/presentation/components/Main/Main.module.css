@@ -1,107 +1,201 @@
-/* ---------- Main ---------- */
-main {
+/* ---------- Main (overall container for page content) ---------- */
+.main { /* Changed from 'main' tag selector to class for module CSS */
     display: flex;
-    flex-direction: row;
-}
-/* ---------- SECTION CONTAINER ---------- */
-.sectionContainer {
+    flex-direction: column; /* Content flows downwards */
+    flex-grow: 1; /* Takes available space in the flex container from MainLayout.tsx */
+    padding: 1rem; /* Add some padding around the content */
     width: 100%;
+    box-sizing: border-box;
 }
 
-/* ---------- TABLE CONTAINER ---------- */
-.container{
-    margin-left: 5%;
-    margin-right: 5%;
-    margin-top: 3%;
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid #002A72;
-    box-shadow: 5px 5px 5px #0000006f;
+/* ---------- Section Container (Wraps the main content block like list and table) ---------- */
+.sectionContainer {
+    background-color: var(--corporate-background-color); /* Assuming a light background for content */
+    border-radius: 12px; /* Softer radius */
+    padding: 1.5rem; /* Padding inside the section */
+    border: 1px solid #e0e0e0; /* Softer border */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between headerContent and tableContainer */
 }
 
-/* ---------- Header content ---------- */
+/* ---------- Header content (title, search, add button) ---------- */
 .headerContent {
     display: flex;
-    flex-direction: row;
+    flex-direction: row; /* Default: items in a row */
     justify-content: space-between;
-    margin-bottom: 5%;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 1rem; /* Space between items when they wrap */
 }
 
-/* ----- Information text ----- */
-p.infText {
-    width: 10%;
-    align-content: center;
-    text-align: center;
+.pageTitle { /* Replaces p.infText for better semantics */
+    font-size: 1.8rem; /* Prominent title */
+    color: var(--corporate-primary-color);
+    margin: 0; /* Remove default margins */
+    font-weight: 600; /* Semi-bold */
 }
 
-/* ----- Add button ----- */
+.controlsContainer { /* Groups search and add button */
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap; /* Allow controls to wrap if needed */
+    align-items: center;
+}
+
+.searcher {
+    border-radius: 20px; /* Slightly less rounded */
+    outline: none;
+    border: 1px solid var(--corporate-primary-color);
+    padding: 0.6rem 1rem; /* Adjust padding */
+    font-size: 0.9rem;
+    min-width: 200px; /* Minimum width */
+    flex-grow: 1; /* Allow search to grow */
+    max-width: 350px; /* Max width */
+}
+
 .addButton {
-    background-color: #002A72;
-    color: #FFF;
-    padding: 10px 30px 10px;
-    border-radius: 40px;
-    border: none;
-    transition: background-color 0.2s ease-out;
+    background-color: var(--corporate-primary-color) !important; /* Use corporate color, ensure override */
+    color: var(--corporate-background-color) !important;
+    padding: 0.6rem 1.2rem; /* Adjust padding */
+    border-radius: 20px;
+    border: none !important;
+    transition: background-color 0.2s ease-out, opacity 0.2s ease;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap; /* Prevent text wrapping */
 }
 
 .addButton:hover {
-    background-color: #D9D9D9;
-    color: #000000;
-    padding: 10px 30px 10px;
-    border-radius: 40px;
-    border: none;
-    cursor: pointer;
+    opacity: 0.85 !important;
 }
 
-/* ----- Searcher ----- */
-.searcher {
-    border-radius: 40px;
-    outline: none;
-    border: 1px solid #021B46;
-    padding: 0 20px;
-    text-align: center;
-    margin-right: 50%;
-}
-
-/* ---------- TABLE CONTAINER ---------- */
+/* ---------- TABLE CONTAINER (PrimeReact DataTable wrapper) ---------- */
 .tableContainer {
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid #002A72;
+    border-radius: 8px; /* Consistent radius */
+    overflow: hidden; /* Important for DataTable responsiveness and rounded corners */
+    border: 1px solid #e0e0e0; /* Border around the table */
 }
 
+/* PrimeReact DataTable Customizations */
+/* These are global overrides for .p-datatable, .p-column-header, etc.
+   It's better to scope them if possible or put them in a global PrimeReact override CSS file.
+   For now, assuming they are intended for tables within this Main component.
+*/
 
-
-/* ---------- Table styles ---------- */
-.headerTB {
-    padding: 10px 15px;
+:global(.p-datatable) { /* Targeting global PrimeReact class */
+    font-size: 0.9rem;
 }
 
-.headerTB:last-child {
-    justify-items: right;
+:global(.p-datatable .p-datatable-thead > tr > th) {
+    background-color: #f8f9fa; /* Light header background */
+    color: var(--corporate-text-color);
+    padding: 0.8rem 1rem;
+    border-bottom: 2px solid var(--corporate-primary-color); /* Accent border for header */
+    text-align: left;
+    font-weight: 600;
 }
 
-.tableRow td,
-.pDatatableThead > tr > th {
-    padding: 10px 15px;
+:global(.p-datatable .p-datatable-tbody > tr) {
+    border-bottom: 1px solid #f0f0f0; /* Lighter row separator */
+    transition: background-color 0.2s ease;
 }
 
-.tableRow td:last-child {
-    justify-items: right;
-}
-
-.tableRow:hover {
-    background-color: #C4C4C4;
+:global(.p-datatable .p-datatable-tbody > tr:hover) {
+    background-color: #e9ecef !important; /* Hover effect */
     cursor: pointer;
-    border-radius: 20px;
 }
 
-.tableRow:hover td:first-child {
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
+:global(.p-datatable .p-datatable-tbody > tr > td) {
+    padding: 0.8rem 1rem;
+    vertical-align: middle;
 }
 
-.tableRow:hover td:last-child {
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
+/* Action button in table */
+:global(.p-datatable .p-datatable-tbody > tr > td button) {
+    background: none;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+}
+:global(.p-datatable .p-datatable-tbody > tr > td button img) {
+    width: 18px; /* Adjust icon size */
+    height: 18px;
+    filter: grayscale(50%); /* Subtle icon color */
+    transition: filter 0.2s ease;
+}
+:global(.p-datatable .p-datatable-tbody > tr > td button:hover img) {
+    filter: grayscale(0%); /* Full color on hover */
+}
+
+
+/* Responsive adjustments for header content */
+@media (max-width: 768px) {
+    .headerContent {
+        flex-direction: column; /* Stack title and controls */
+        align-items: stretch; /* Make items take full width */
+    }
+    .pageTitle {
+        text-align: center; /* Center title */
+        margin-bottom: 1rem;
+    }
+    .controlsContainer {
+        flex-direction: column; /* Stack search and button */
+        width: 100%;
+    }
+    .searcher {
+        width: 100%; /* Full width search */
+        max-width: none;
+        margin-right: 0; /* Reset margin from old style */
+    }
+    .addButton {
+        width: 100%; /* Full width button */
+    }
+}
+
+/* PrimeReact DataTable Stacked/Card view on mobile (example) */
+/* This requires JS to add data-label attributes or a PrimeReact responsive layout */
+@media screen and (max-width: 640px) { /* Adjust breakpoint as needed */
+    :global(.p-datatable .p-datatable-thead) {
+        display: none; /* Hide table header */
+    }
+
+    :global(.p-datatable .p-datatable-tbody > tr) {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    :global(.p-datatable .p-datatable-tbody > tr > td) {
+        display: flex; /* Use flex for label and value */
+        justify-content: space-between; /* Align label and value */
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-bottom: 1px dotted #eee; /* Dotted separator for card items */
+        text-align: right; /* Align value to the right */
+        white-space: normal; /* Allow text to wrap */
+    }
+
+    :global(.p-datatable .p-datatable-tbody > tr > td::before) {
+        content: attr(data-label); /* Requires data-label attribute on td */
+        font-weight: bold;
+        margin-right: 10px;
+        text-align: left; /* Align label to the left */
+        color: var(--corporate-primary-color);
+    }
+
+    :global(.p-datatable .p-datatable-tbody > tr > td:last-child) {
+        border-bottom: none; /* Remove border for last item in card */
+    }
+     /* Ensure action buttons are still usable */
+    :global(.p-datatable .p-datatable-tbody > tr > td:has(button)) {
+        justify-content: flex-end; /* Align button to the right if it's the only content */
+    }
+    :global(.p-datatable .p-datatable-tbody > tr > td:has(button)::before) {
+        display: none; /* Hide label for action column if it's just a button */
+    }
 }

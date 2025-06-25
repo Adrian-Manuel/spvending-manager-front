@@ -1,58 +1,82 @@
 /* ---------- HEADER CSS ---------- */
-header.header {
-    background-color: #021B46;
-    height: 10vh;
+.header { /* Use class selector for consistency */
+    background-color: var(--corporate-primary-color); /* Use corporate color */
+    min-height: 10vh; /* Use min-height for flexibility */
+    padding: 0 20px; /* Add some padding */
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+    gap: 10px; /* Add gap between items when they wrap */
 }
 
 /* ---------- Text decoration ---------- */
-header.header > h1, header > div.userContainer > h2 {
-    color: #fff;
+.header h1, .header .userContainer h2 { /* More specific selectors */
+    color: var(--corporate-background-color); /* Use corporate color */
+    margin: 0; /* Reset default margins for h1/h2 */
 }
 
-header.header > h1 {
-    margin-left: 32px;
+.header h1 {
+    font-size: 1.5rem; /* Responsive font size */
 }
 
 /* ---------- USER CONTAINER CSS ---------- */
 .userContainer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 200px;
-    margin-right: 3%;
-    padding: 1% 2% 0px 2%;
+    gap: 10px; /* Space between username and icon */
+    padding: 5px 10px; /* Adjust padding */
     cursor: pointer;
+    border-radius: 4px; /* Optional: slight rounding */
+    transition: background-color 0.2s ease;
+}
+
+.userContainer:hover {
+    background-color: rgba(255, 255, 255, 0.1); /* Slight hover effect */
+}
+
+.userContainer h2 {
+    font-size: 1rem; /* Responsive font size */
+    white-space: nowrap; /* Prevent username from wrapping */
 }
 
 .picContainer {
     background-color: #D9D9D9;
-    height: 60px;
-    width: 60px;
+    height: 40px; /* Adjust size */
+    width: 40px;  /* Adjust size */
     border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Ensure image fits */
+}
+
+.picContainer img {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 /* ---------- PROFILE MENU ---------- */
 .menuProfileHidden {
-    background-color: #021B46;
-    width: 300px;
-    height:fit-content;
+    background-color: var(--corporate-primary-color); /* Use corporate color */
+    width: 250px; /* Adjust width */
+    height: fit-content;
     position: absolute;
-    top: 10vh;
-    right: 2.5%;
-    padding: 20px;
-    border-radius: 0px 0px 10px 10px;
+    top: calc(10vh + 5px); /* Position below header, adjust as needed */
+    right: 20px; /* Align with header padding */
+    padding: 15px;
+    border-radius: 0px 0px 8px 8px; /* Softer radius */
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(0.95); /* Add scale for smoother animation */
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000; /* Ensure it's above other content */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Add subtle shadow */
 }
 
 .menuProfile {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     pointer-events: auto;
 }
 
@@ -61,11 +85,83 @@ header.header > h1 {
 }
 
 .cntnrUl {
+    list-style: none; /* Remove default list styling */
+    padding: 0;
+    margin: 0;
     height: fit-content;
 }
 
-li.cntnrLi > button {
-    width: 90%;
-    padding: 10px 30px 10px;
-    border-radius: 10px;
+.cntnrLi { /* Target li directly if it's just for the button */
+    margin: 0; /* Reset margin if any */
+}
+
+.cntnrLi > .cntnrBtn { /* Use the class for the button */
+    width: 100%;
+    padding: 10px 15px; /* Adjust padding */
+    border-radius: 6px; /* Softer radius */
+    background-color: var(--corporate-accent-color) !important; /* Use corporate accent color */
+    color: var(--corporate-background-color) !important;
+    text-align: left;
+    font-size: 0.95rem;
+    border: none !important; /* Ensure no borders from global styles if not desired */
+}
+
+.cntnrLi > .cntnrBtn:hover {
+    opacity: 0.85 !important; /* Consistent hover effect */
+}
+
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 15px; /* Reduce padding on smaller screens */
+        min-height: 8vh;
+    }
+
+    .header h1 {
+        font-size: 1.3rem;
+    }
+
+    .userContainer h2 {
+        font-size: 0.9rem;
+    }
+
+    .picContainer {
+        height: 35px;
+        width: 35px;
+    }
+
+    .menuProfileHidden {
+        width: 200px;
+        right: 15px;
+        top: calc(8vh + 5px);
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align to the start */
+        padding: 10px 15px;
+    }
+
+    .header h1 {
+        margin-bottom: 10px; /* Add space below title */
+    }
+
+    .userContainer {
+        align-self: flex-end; /* Move user container to the right */
+        margin-top: -45px; /* Adjust position - may need fine-tuning */
+    }
+
+    .menuProfileHidden {
+        width: calc(100% - 30px); /* Full width minus padding */
+        top: auto; /* Adjust based on new header layout */
+        left: 15px;
+        right: 15px;
+         /* Consider positioning relative to the user icon or a menu button if header stacks */
+    }
+     .userContainer h2 {
+        display: none; /* Optionally hide username on very small screens */
+    }
 }

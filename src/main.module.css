@@ -1,0 +1,32 @@
+/* CSS Modules for main.tsx layout */
+.appContainer {
+    display: flex;
+    /* The body already has padding-top for the fixed header.
+       The #root is min-height: 100vh.
+       This container helps in positioning Aside and main content area. */
+}
+
+.mainContentWrapper {
+    flex-grow: 1; /* Allows this area to take up remaining space */
+    padding-left: 80px; /* Default collapsed Aside width for desktop */
+    transition: padding-left 0.3s ease;
+    width: 100%; /* Important for flex children */
+    display: flex; /* To make App (which is also flex column) behave correctly */
+    flex-direction: column;
+    min-height: calc(100vh - 10vh); /* Full viewport height minus desktop header */
+}
+
+/* When Aside is expanded on desktop */
+.mainContentWrapperExpanded {
+    padding-left: 280px; /* Expanded Aside width for desktop */
+}
+
+
+/* On mobile/tablet, Aside becomes an overlay, so main content doesn't need padding-left */
+@media (max-width: 768px) {
+    .mainContentWrapper,
+    .mainContentWrapperExpanded { /* Ensure no padding is applied when aside is an overlay */
+        padding-left: 0;
+        min-height: calc(100vh - 8vh); /* Full viewport height minus mobile header */
+    }
+}

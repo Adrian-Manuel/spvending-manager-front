@@ -2,9 +2,21 @@
     margin: 0px;
     padding: 0px;
     font-size: 20px;
-    font-family: Montserrat;
+    font-family: Montserrat, sans-serif;
     font-weight: normal;
-    font-size: 20px;
+    font-size: 1rem; /* Use rem for scalable font size */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+html, body { /* #root should not have 100% height here if App.tsx uses flex min-height: 100vh */
+    width: 100%;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+#root {
+    min-height: 100vh; /* Ensure root takes at least full viewport height */
+    display: flex;
+    flex-direction: column;
 }
 
 @font-face {
@@ -12,3 +24,106 @@
     src: url('./fonts/Montserrat-VariableFont_wght.ttf');
 }
 
+/* Add some basic responsive typography */
+body {
+    line-height: 1.6;
+    padding-top: 10vh; /* Add padding to body to offset fixed header (desktop) */
+}
+
+/* Adjust body padding for mobile header height */
+@media (max-width: 768px) {
+    body {
+        padding-top: 8vh;
+    }
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    margin-top: 0; /* Remove default top margin from headings */
+    margin-bottom: 0.5em;
+}
+
+/* Base font sizes, will be scaled by media queries in App.css or here */
+h1 { font-size: 2.2rem; } /* Adjusted base */
+h2 { font-size: 1.8rem; } /* Adjusted base */
+h3 { font-size: 1.5rem; } /* Adjusted base */
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
+
+/* Responsive container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px; /* Add some horizontal padding */
+    padding-right: 15px;
+}
+
+/* Example of a responsive grid - adjust as needed */
+.grid {
+    display: grid;
+    gap: 1rem; /* Default gap */
+}
+
+@media (min-width: 600px) {
+    .grid {
+        gap: 1.5rem; /* Increase gap on larger screens */
+    }
+    .grid-cols-sm-2 { /* Example: specific breakpoint prefix */
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .grid-cols-sm-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .grid-cols-md-3 { /* Example: specific breakpoint prefix */
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .grid-cols-md-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Utility classes for common responsive patterns */
+.hidden-mobile { /* Hide on screens smaller than 768px (typical tablet portrait) */
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    .hidden-mobile {
+        display: initial !important; /* Or block, inline-block, etc., as appropriate */
+    }
+    .visible-mobile { /* Show only on screens smaller than 768px */
+        display: none !important;
+    }
+}
+
+@media (max-width: 767.98px) { /* Max width for mobile visibility */
+    .visible-mobile {
+        display: initial !important;
+    }
+}
+
+
+/* Add more specific responsive styles for components in their respective CSS files */
+
+/* Main content area styling to work with fixed Aside */
+/* This assumes your main content wrapper will have a class like 'main-content' */
+.main-content {
+    padding-left: 80px; /* Default collapsed Aside width */
+    transition: padding-left 0.3s ease;
+    flex-grow: 1; /* Make main content take remaining space */
+    width: 100%; /* Ensure it tries to take full width before padding adjustment */
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) { /* Mobile view, Aside is an overlay, so no padding needed */
+    .main-content {
+        padding-left: 0;
+    }
+}

@@ -1,0 +1,22 @@
+/* SelectClubOptions.module.css */
+.clubDropdown { /* This class is applied to the PrimeReact Dropdown component */
+    width: 100% !important; /* Ensure it takes full width within its parent (.inputPack) */
+}
+
+/* Placeholder text style, similar to Tenant dropdown */
+:global(.p-dropdown.p-component .p-dropdown-label.p-placeholder) {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Filter input style */
+:global(.p-dropdown-filter.p-inputtext) {
+    padding: 0.5rem !important;
+}
+
+/* Dropdown item style */
+:global(.p-dropdown-item) {
+    padding: 0.75rem 1rem !important;
+}
+
+/* Add more specific styling if needed */

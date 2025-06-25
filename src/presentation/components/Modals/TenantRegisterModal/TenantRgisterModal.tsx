@@ -1,16 +1,26 @@
-import styles from "./../Modal.module.css"
-import React, { useState } from "react";
+import styles from "./../Modal.module.css"; // Shared modal styles
+import React, { useState, useCallback } from "react";
 import { CreateTenant } from "../../../../application/usecases/TenantUseCases/CreateTenant";
 import { ModalProps } from "../../../../domain/entities/property-models/componentsProperties";
 import { TenantRepositoryHttp } from "../../../../infraestructure/adapters/api/TenantRepositoryHttp";
 import { Tenant } from "../../../../domain/entities/models/tenant";
 
+// PrimeReact components for form elements
+import { Dialog } from 'primereact/dialog';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+// import { InputTextarea } from 'primereact/inputtextarea'; // For remarks if needed
+
 const tenantRepo = new TenantRepositoryHttp();
 const createTenant = new CreateTenant(tenantRepo);
 
-function TenantRegisterModal({ isOpen, onClose, toastRef }: ModalProps) {
-    // States:
-    const [tenantFormData, setTenantFormData] = useState<Omit<Tenant, "tenantId" | "numberOfClubs">>({
+// Extended ModalProps to include a function to refresh the list after successful creation
+interface TenantRegisterModalProps extends ModalProps {
+    fetchTenants?: () => void; // Optional: function to refresh tenant list
+}
+
+function TenantRegisterModal({ isOpen, onClose, toastRef, fetchTenants }: TenantRegisterModalProps) {
+    const initialFormData: Omit<Tenant, "tenantId" | "numberOfClubs"> = {
         tenantName: "",
         cif: 0,
         address: "",
@@ -18,81 +28,94 @@ function TenantRegisterModal({ isOpen, onClose, toastRef }: ModalProps) {
         email: "",
         remark: "",
         micronId: ""
-    });
+    };
+    const [tenantFormData, setTenantFormData] = useState(initialFormData);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const showSuccess = ()=> {
-        toastRef.current?.show({ severity: 'success', summary: 'Success', detail: 'Tenant modified successfully.' });
-    }
+    const showSuccess = useCallback(() => {
+        toastRef.current?.show({ severity: 'success', summary: 'Success', detail: 'Tenant registered successfully.' });
+    }, [toastRef]);
 
-    const showError = () => {
-        toastRef.current?.show({severity:'error', summary: 'Error', detail:'Error modifying tenant', life: 3000});
-    }
+    const showError = useCallback((detail: string = 'Error registering tenant. Please check the details.') => {
+        toastRef.current?.show({ severity: 'error', summary: 'Error', detail: detail, life: 3000 });
+    }, [toastRef]);
 
-    // Handlers
-    function changeHandler(event: React.ChangeEvent<HTMLInputElement>) {
+    const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        setTenantFormData({
-            ...tenantFormData,
-            [name]: name === "cif" || name === "phone" ? Number(value) : value
-        });
-    }
+        setTenantFormData(prev => ({
+            ...prev,
+            [name]: name === "cif" || name === "phone" ? (value === "" ? 0 : Number(value)) : value
+        }));
+    }, []);
 
-    async function submitHandler(event: React.FormEvent) {
+    const handleSubmit = useCallback(async (event: React.FormEvent) => {
         event.preventDefault();
+        setIsSubmitting(true);
         try {
-            const fetchData = await createTenant.execute(tenantFormData);
-            console.log(fetchData);
+            await createTenant.execute(tenantFormData);
             showSuccess();
+            setTenantFormData(initialFormData); // Reset form
             onClose();
-            // TODO: Implement a timer for page reload
-            window.location.reload();
-        } catch {
-            showError();
+            fetchTenants?.(); // Refresh tenant list if function is provided
+        } catch (err: any) {
+            console.error("Tenant registration error:", err);
+            showError(err.message || 'An unexpected error occurred.');
+        } finally {
+            setIsSubmitting(false);
         }
-    }
+    }, [tenantFormData, onClose, showSuccess, showError, fetchTenants, initialFormData]);
 
-    if (!isOpen) return null;
-
-    return (
-        <div className={styles.modalOverlay}>
-            <div className={styles.modal}>
-                <h2 className={styles.h2}>REGISTER TENANT</h2>
-                <form onSubmit={submitHandler} className={styles.form}>
-                    <div className={styles.inputPack}>
-                        <label>Tenant Name: </label>
-                        <input name="tenantName" placeholder="Nombre" value={tenantFormData.tenantName} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label>Tenant CIF: </label>
-                        <input name="cif" placeholder="CIF" value={tenantFormData.cif || ""} onChange={changeHandler} type="number" required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label>Tenant Address: </label>
-                        <input name="address" placeholder="Dirección" value={tenantFormData.address} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label>Tenant Phone: </label>
-                        <input name="phone" placeholder="Teléfono" value={tenantFormData.phone || ""} onChange={changeHandler} type="number" required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label>Tenant email: </label>
-                        <input name="email" placeholder="Email" value={tenantFormData.email} onChange={changeHandler} type="email" required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label>Tenant Remark: </label>
-                        <input name="remark" placeholder="Observaciones" value={tenantFormData.remark} onChange={changeHandler} />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label>Tenant Micron ID: </label>
-                        <input name="micronId" placeholder="Micron ID" value={tenantFormData.micronId} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.buttonsContainer}>
-                        <button className={styles.button} type="submit">Registrar</button>
-                        <button className={styles.button} type="button" onClick={onClose}>Cancelar</button>
-                    </div>
-                </form>
-            </div>
+    const dialogFooter = (
+        <div>
+            <Button label="Cancel" icon="pi pi-times" onClick={onClose} className="p-button-text" disabled={isSubmitting} />
+            <Button label="Register" icon="pi pi-check" onClick={handleSubmit} autoFocus loading={isSubmitting} />
         </div>
+    );
+
+    // No need to return null if !isOpen, Dialog handles visibility with its 'visible' prop
+    return (
+        <Dialog
+            header="Register Tenant"
+            visible={isOpen}
+            style={{ width: '50vw' }} // Responsive width is handled by Modal.module.css
+            modal
+            footer={dialogFooter}
+            onHide={onClose}
+            blockScroll // Prevent background scrolling when modal is open
+        >
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.inputPack}>
+                    <label htmlFor="tenantName">Tenant Name</label>
+                    <InputText id="tenantName" name="tenantName" value={tenantFormData.tenantName} onChange={handleChange} required placeholder="e.g., Example Corp" />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="cif">CIF</label>
+                    <InputText id="cif" name="cif" value={String(tenantFormData.cif === 0 ? '' : tenantFormData.cif)} onChange={handleChange} type="number" required placeholder="e.g., 123456789" />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="address">Address</label>
+                    <InputText id="address" name="address" value={tenantFormData.address} onChange={handleChange} required placeholder="e.g., 123 Main St, Anytown" />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="phone">Phone</label>
+                    <InputText id="phone" name="phone" value={String(tenantFormData.phone === 0 ? '' : tenantFormData.phone)} onChange={handleChange} type="number" required placeholder="e.g., 555123456" />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="email">Email</label>
+                    <InputText id="email" name="email" value={tenantFormData.email} onChange={handleChange} type="email" required placeholder="e.g., contact@example.com" />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="remark">Remark</label>
+                    <InputText id="remark" name="remark" value={tenantFormData.remark} onChange={handleChange} placeholder="Optional notes" />
+                    {/* <InputTextarea id="remark" name="remark" value={tenantFormData.remark} onChange={(e) => handleChange(e as any)} rows={3} placeholder="Optional notes" /> */}
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="micronId">Micron ID</label>
+                    <InputText id="micronId" name="micronId" value={tenantFormData.micronId} onChange={handleChange} required placeholder="Unique Micron Identifier" />
+                </div>
+                {/* Buttons are now in dialogFooter */}
+            </form>
+        </Dialog>
     );
 }
 

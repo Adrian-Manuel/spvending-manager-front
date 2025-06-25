@@ -1,0 +1,141 @@
+/* Ensure the app container takes full height and enables flexbox for layout */
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Example: Making the header and main content responsive */
+/* You might have specific components for Header, Main, Footer */
+
+/* Let main content area expand */
+main {
+    flex-grow: 1;
+    padding: 1rem; /* Add some padding */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    /* Example: Stack navigation items vertically in a mobile menu */
+    /* .navbar ul {
+        flex-direction: column;
+    } */
+
+    /* Adjust font sizes for smaller screens */
+    body {
+        font-size: 0.9rem;
+    }
+
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 0.85rem;
+    }
+
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+
+    /* Further adjustments for very small screens */
+    /* .container {
+        width: 95%;
+    } */
+}
+
+/* Ensure PrimeReact components are responsive */
+/* PrimeReact components are generally responsive, but you might need to adjust their container's width or layout */
+
+.p-component {
+    font-family: Montserrat, sans-serif !important; /* Ensuring corporate font is applied */
+}
+
+/* Example: Make PrimeReact Dialog responsive */
+.p-dialog {
+    max-width: 90vw; /* Ensure dialogs don't overflow on small screens */
+}
+
+@media (min-width: 768px) {
+    .p-dialog {
+        max-width: 50vw; /* Adjust as needed for larger screens */
+    }
+}
+
+/* Add your corporate color variables here */
+:root {
+    --corporate-primary-color: #004A99; /* Example: A shade of blue */
+    --corporate-secondary-color: #FFD700; /* Example: A shade of gold/yellow */
+    --corporate-text-color: #333333;
+    --corporate-background-color: #FFFFFF;
+    --corporate-accent-color: #E85A00; /* Example: An accent orange */
+
+    /* PrimeReact theme variable overrides - find these in PrimeReact docs or theme files */
+    /* Example:
+    --primary-color: var(--corporate-primary-color);
+    --text-color: var(--corporate-text-color);
+    --link-color: var(--corporate-accent-color);
+    --highlight-bg: var(--corporate-primary-color);
+    --highlight-text-color: var(--corporate-background-color);
+    */
+}
+
+body {
+    color: var(--corporate-text-color);
+    background-color: var(--corporate-background-color);
+}
+
+/* Apply corporate colors to common elements */
+a {
+    color: var(--corporate-accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Styling for PrimeReact buttons to align with corporate colors */
+.p-button {
+    background-color: var(--corporate-primary-color) !important;
+    color: var(--corporate-background-color) !important;
+    border: 1px solid var(--corporate-primary-color) !important; /* Adding a border for definition */
+    padding: 0.5em 1em !important;
+    border-radius: 4px !important;
+    font-family: Montserrat, sans-serif !important;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.p-button:hover, .p-button:focus {
+    background-color: #003366 !important; /* Darker shade for hover/focus */
+    color: var(--corporate-background-color) !important;
+    border-color: #003366 !important;
+    opacity: 1 !important; /* Override any PrimeReact default opacity changes if necessary */
+}
+
+/* Secondary button style example */
+.p-button.p-button-secondary {
+    background-color: var(--corporate-secondary-color) !important;
+    color: var(--corporate-text-color) !important;
+    border-color: var(--corporate-secondary-color) !important;
+}
+
+.p-button.p-button-secondary:hover, .p-button.p-button-secondary:focus {
+    background-color: #E6C200 !important; /* Darker shade for secondary button */
+    color: var(--corporate-text-color) !important;
+    border-color: #E6C200 !important;
+}
+
+
+/* You will need to identify specific PrimeReact component classes to override their styles
+   or create a custom PrimeReact theme.
+   For example, to change the header color of a PrimeReact Panel:
+.p-panel .p-panel-header {
+    background-color: var(--corporate-primary-color);
+    color: white;
+}
+*/
+
+/* Specific component styles should go into their respective CSS module files */

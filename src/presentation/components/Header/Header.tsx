@@ -1,6 +1,6 @@
 import styles from './Header.module.css';
 import userIcon from './../../../assets/icons/UserIcon.svg';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { Admin } from '../../../contexts/AdminContext';
 import { AdminRepositoryHttp } from '../../../infraestructure/adapters/api/AdminRepositoryHttp';
 import { LogOutAdmin } from '../../../application/usecases/AdminUseCases/LogOutAdmin';
@@ -14,56 +14,92 @@ function Header() {
     // States:
     const [admin, setAdmin] = useContext(Admin);
     const [ adminUser, setAdminUser ] = useState("User Name");
-    const [ isHidden, setIsHidden ] = useState(true);
+    const [ isMenuVisible, setIsMenuVisible ] = useState(false); // Changed from isHidden for clarity
     const navigate = useNavigate();
+    const menuRef = useRef<HTMLDivElement>(null);
+    const userContainerRef = useRef<HTMLDivElement>(null);
 
     // Handlers:
-    function onClickHandlerDisplayMenuProfile() {
-        setIsHidden(prev => !prev);
+    function toggleProfileMenu() { // Renamed for clarity
+        setIsMenuVisible(prev => !prev);
     }
 
-    async function onClickLogOutHanler() {
+    async function onClickLogOutHandler() { // Renamed for consistency
         try {
             const response = await logOutAdmin.execute();
-            console.log(response);
-            if (response == true) {
+            // console.log(response); // Keep for debugging if needed
+            if (response === true) { // Strict equality
                 setAdmin(null);
+                setIsMenuVisible(false); // Hide menu on logout
                 navigate(appRoutes.logginRoute);
             } else {
-                alert("Error log out the user");
+                alert("Error logging out the user. Please try again."); // More user-friendly message
             }
         } catch (err) {
-            console.error(err);
+            console.error("Logout error:", err); // Add context to error log
+            alert("An unexpected error occurred during logout. Please try again.");
         } 
     }
 
+    // Effect for admin user name
     useEffect(
         () => {
             if (admin != null) {
                 const user:string = admin.name
                 setAdminUser(user);
+            } else {
+                setAdminUser("User Name"); // Reset if admin is null
             }
         }, [admin]
     );
 
+    // Effect for closing menu when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node) &&
+                userContainerRef.current &&
+                !userContainerRef.current.contains(event.target as Node)
+            ) {
+                setIsMenuVisible(false);
+            }
+        }
+
+        if (isMenuVisible) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isMenuVisible]);
+
     return(
         <header className={styles.header}>
             <h1>SPVending Manager</h1>
-            <div className={styles.userContainer} onClick={onClickHandlerDisplayMenuProfile}>
+            <div className={styles.userContainer} onClick={toggleProfileMenu} ref={userContainerRef}>
                 <h2>{adminUser}</h2>
                 <div className={styles.picContainer}>
-                    <img src={userIcon} alt="profile pic" height="60" width="60"/>
+                    {/* Removed fixed height and width, control via CSS for responsiveness */}
+                    <img src={userIcon} alt="profile pic" />
                 </div>
             </div>
-            <div className={`${styles.menuProfileHidden } ${!isHidden ? styles.menuProfile : ''}`}>
-                    <nav className={styles.cntnrNv}>
-                        <ul className={styles.cntnrUl}>
-                            <li className={styles.cntnrLi}>
-                                <button className={styles.cntnrBtn} onClick={onClickLogOutHanler}>Sing Out</button>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+            <div
+                ref={menuRef}
+                className={`${styles.menuProfileHidden} ${isMenuVisible ? styles.menuProfile : ''}`}
+            >
+                <nav className={styles.cntnrNv}>
+                    <ul className={styles.cntnrUl}>
+                        <li className={styles.cntnrLi}>
+                            {/* Added type="button" for accessibility and to prevent unintended form submissions if wrapped in a form */}
+                            <button type="button" className={styles.cntnrBtn} onClick={onClickLogOutHandler}>Sign Out</button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </header>
     );
 }

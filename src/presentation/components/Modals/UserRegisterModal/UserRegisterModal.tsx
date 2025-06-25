@@ -1,5 +1,5 @@
-import styles from "./../Modal.module.css"
-import { useState } from "react";
+import styles from "./../Modal.module.css";
+import React, { useState, useCallback } from "react";
 import { CreateUser } from "../../../../application/usecases/UserUseCases/CreateUser";
 import { ModalProps } from "../../../../domain/entities/property-models/componentsProperties";
 import { UserRepositoryHttp } from "../../../../infraestructure/adapters/api/UserRepositoryHttp";
@@ -7,121 +7,155 @@ import { User } from "../../../../domain/entities/models/user";
 import SelectTenantOptions from "../../SelectTenantOptions/SelectTenantOptions";
 import SelectClubOptions from "../../SelectClubOptions/SelectClubOptions";
 
+// PrimeReact components
+import { Dialog } from 'primereact/dialog';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Password } from 'primereact/password'; // For password fields
+import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton'; // For user type
 
 const userRepo = new UserRepositoryHttp();
 const createUser = new CreateUser(userRepo);
 
-function UserRegisterModal({ isOpen, onClose, toastRef }: ModalProps) {
-    // States:
-    const [userForm, setUserForm] = useState<Omit<User, "userId" | "clubName">>({
+interface UserRegisterModalProps extends ModalProps {
+    fetchUsers?: () => void; // Optional: function to refresh user list
+}
+
+function UserRegisterModal({ isOpen, onClose, toastRef, fetchUsers }: UserRegisterModalProps) {
+    const initialFormData: Omit<User, "userId" | "clubName"> = {
         username: "",
         password: "",
         micronId: "",
         micronUser: "",
         micronPass: "",
-        userType: 1,
+        userType: 1, // Default to Club admin
         tenantId: "",
         clubId: ""
-    });
+    };
+    const [userForm, setUserForm] = useState(initialFormData);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const showSuccess = ()=> {
-        toastRef.current?.show({ severity: 'success', summary: 'Success', detail: 'Tenant modified successfully.' });
-    }
+    const showSuccess = useCallback(() => {
+        toastRef.current?.show({ severity: 'success', summary: 'Success', detail: 'User registered successfully.' });
+    }, [toastRef]);
 
-    const showError = () => {
-        toastRef.current?.show({severity:'error', summary: 'Error', detail:'Error modifying tenant', life: 3000});
-    }
+    const showError = useCallback((detail: string = 'Error registering user.') => {
+        toastRef.current?.show({ severity: 'error', summary: 'Error', detail: detail, life: 3000 });
+    }, [toastRef]);
 
-    //Handlers:
-    function changeHandler(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        const mappedname = name === "clubEntityId" ? "clubId" : name;
-        setUserForm({
-            ...userForm,
-            [mappedname]: mappedname === "userType" ? Number(value) : value
-        });
-    }
+        setUserForm(prev => ({ ...prev, [name]: value }));
+    }, []);
 
-    async function submitHandler(event: React.FormEvent) {
+    const handleUserTypeChange = useCallback((event: RadioButtonChangeEvent) => {
+        setUserForm(prev => ({ ...prev, userType: Number(event.value) }));
+    }, []);
+
+    const handleTenantSelect = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+        setUserForm(prev => ({ ...prev, tenantId: event.target.value, clubId: "" })); // Reset clubId when tenant changes
+    }, []);
+
+    const handleClubSelect = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+        setUserForm(prev => ({ ...prev, clubId: event.target.value }));
+    }, []);
+
+    const handleSubmit = useCallback(async (event: React.FormEvent) => {
         event.preventDefault();
-        try {
-            const fetchData = await createUser.execute(userForm);
-            console.log(fetchData);
-            showSuccess();
-            onClose();
-            // TODO: Implement a timer for page reload
-            window.location.reload();
-        } catch {
-            showError();
+        if (!userForm.tenantId) {
+            showError("Please select a Tenant.");
+            return;
         }
-    }
+        if (userForm.userType === 1 && !userForm.clubId) { // Club Admin requires a club
+            showError("Please select a Club for Club Admin.");
+            return;
+        }
+        setIsSubmitting(true);
+        try {
+            // If userType is Tenant Admin (2), clubId might not be relevant or should be handled server-side
+            const payload = { ...userForm };
+            if (payload.userType === 2) {
+                // payload.clubId = ""; // Or handle as per backend requirements
+            }
+            await createUser.execute(payload);
+            showSuccess();
+            setUserForm(initialFormData); // Reset form
+            onClose();
+            fetchUsers?.(); // Refresh list
+        } catch (err: any) {
+            console.error("User registration error:", err);
+            showError(err.message || 'An unexpected error occurred.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    }, [userForm, onClose, showSuccess, showError, fetchUsers, initialFormData]);
 
-    if (!isOpen) return null;
+    const dialogFooter = (
+        <div>
+            <Button label="Cancel" icon="pi pi-times" onClick={onClose} className="p-button-text" disabled={isSubmitting} />
+            <Button label="Register" icon="pi pi-check" onClick={handleSubmit} autoFocus loading={isSubmitting} />
+        </div>
+    );
 
     return (
-        <div className={styles.modalOverlay}>
-            <div className={styles.modal}>
-                <h2 className={styles.h2}>REGISTER USER</h2>
-                <form onSubmit={submitHandler} className={styles.form}>
-                    <div className={styles.inputPack}>
-                        <label htmlFor="">User name: </label>
-                        <input name="username" type="text" placeholder="User name" value={userForm.username} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label htmlFor="">User password: </label>
-                        <input name="password" type="password" placeholder="User password" value={userForm.password} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label htmlFor="">User Micron Id</label>
-                        <input name="micronId" placeholder="Micron ID" value={userForm.micronId} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label htmlFor="">Micron User</label>
-                        <input name="micronUser" placeholder="Micron User" value={userForm.micronUser} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <label htmlFor="">Micron Pass</label>
-                        <input name="micronPass" placeholder="Micron Pass" value={userForm.micronPass} onChange={changeHandler} required />
-                    </div>
-                    <div className={styles.inputPack}>
-                        <p>Select user rol:</p>
-                        <div className={styles.radioButtons}>
-                        <label htmlFor="type1">Tenant admin</label>
-                        <input
-                            className={styles.rdbttn}
-                            type="radio"
-                            id="type1"
-                            name="userType"
-                            value="2"
-                            checked={userForm.userType === 2}
-                            onChange={changeHandler}
-                        />
-                        <br />
-                        <label htmlFor="type2">Club admin</label>
-                        <input
-                            className={styles.rdbttn}
-                            type="radio"
-                            id="type2"
-                            name="userType"
-                            value="1"
-                            checked={userForm.userType === 1}
-                            onChange={changeHandler}
-                        />
+        <Dialog
+            header="Register User"
+            visible={isOpen}
+            style={{ width: '50vw' }} // Responsive width by Modal.module.css
+            modal
+            footer={dialogFooter}
+            onHide={onClose}
+            blockScroll
+        >
+            <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.inputPack}>
+                    <label htmlFor="username">Username</label>
+                    <InputText id="username" name="username" value={userForm.username} onChange={handleChange} required />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="password">Password</label>
+                    <Password id="password" name="password" value={userForm.password} onChange={handleChange} required feedback={false} toggleMask />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="micronId">User Micron ID</label>
+                    <InputText id="micronId" name="micronId" value={userForm.micronId} onChange={handleChange} required />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="micronUser">Micron Username</label>
+                    <InputText id="micronUser" name="micronUser" value={userForm.micronUser} onChange={handleChange} required />
+                </div>
+                <div className={styles.inputPack}>
+                    <label htmlFor="micronPass">Micron Password</label>
+                    <Password id="micronPass" name="micronPass" value={userForm.micronPass} onChange={handleChange} required feedback={false} toggleMask />
+                </div>
+
+                <div className={styles.inputPack}>
+                    <label>User Role</label>
+                    <div className={styles.radioButtons}>
+                        <div className={styles.radioButtonItem}>
+                            <RadioButton inputId="userTypeClub" name="userType" value={1} onChange={handleUserTypeChange} checked={userForm.userType === 1} />
+                            <label htmlFor="userTypeClub">Club Admin</label>
+                        </div>
+                        <div className={styles.radioButtonItem}>
+                            <RadioButton inputId="userTypeTenant" name="userType" value={2} onChange={handleUserTypeChange} checked={userForm.userType === 2} />
+                            <label htmlFor="userTypeTenant">Tenant Admin</label>
                         </div>
                     </div>
+                </div>
+
+                <div className={styles.inputPack}>
+                    <label htmlFor="tenantId">Tenant</label>
+                    <SelectTenantOptions onSelectTenant={handleTenantSelect} currentTenantId={userForm.tenantId} />
+                </div>
+
+                {userForm.userType === 1 && ( // Only show Club selection for Club Admin
                     <div className={styles.inputPack}>
-                        <SelectTenantOptions onSelectTenant={changeHandler} />
+                        <label htmlFor="clubId">Club</label>
+                        <SelectClubOptions onSelectClub={handleClubSelect} currentClubId={userForm.clubId} tenantId={userForm.tenantId} />
                     </div>
-                    <div className={styles.inputPack}>
-                        <SelectClubOptions onSelectClub={changeHandler} />
-                    </div>
-                    <div className={styles.buttonsContainer}>
-                        <button className={styles.button} type="submit">Registrar</button>
-                        <button className={styles.button} type="button" onClick={onClose}>Cancelar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                )}
+            </form>
+        </Dialog>
     );
 }
 
